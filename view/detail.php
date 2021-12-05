@@ -3,7 +3,7 @@ foreach ($currentVehicule as $value) : ?>
 
     <div class="card text-center text-muted fs-4 mt-4">
         <div class="card-header py-4 display-6 fw-normal">
-            Votre réservation a bien été validée, <?= $_SESSION['membre']['prenom'] . " !"; ?>
+            Votre réservation a bien été validée, <?= $_SESSION['membre']['prenom']; ?>
         </div>
         <div class="card-body">
             <p class="fs-3 mt-4">Période du <?= $_GET['debut'] ?> au <?= $_GET['fin'] ?></p>

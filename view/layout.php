@@ -74,7 +74,6 @@
         <?php require_once './view/modals/sign.php'; ?>
         <!-- Form modal contact -->
         <?php require_once './view/modals/contact.php'; ?>
-      
 
         <main class="container"> <?= $content ?></main>
 

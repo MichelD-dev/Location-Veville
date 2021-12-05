@@ -7,6 +7,8 @@ class Controller
 
     private $dbEntityRepository;
 
+    public $reservationCall;
+
     public function __construct()
     {
         session_start();
@@ -16,32 +18,26 @@ class Controller
     {
         $route = isset($_GET['route']) ? $_GET['route'] : NULL;
 
-        if (isset($_POST['sign'])) $this->sign($_POST);
+        (isset($_POST['sign'])) && $this->sign($_POST);
 
-        if (isset($_POST['sign_up'])) $this->sign_up($_POST);
+        (isset($_POST['sign_up'])) && $this->sign_up($_POST);
 
         // if (isset($_POST['contact'])) $this->contact($_POST);
 
-        if (isset($_POST['id_agence']) && $_POST['id_agence'] && isset($_POST['date_debut']) && $_POST['date_debut'] && isset($_POST['date_fin']) && $_POST['date_fin']) {
-            $reservationCall = $_POST['id_agence'] && $_POST['date_debut'] && $_POST['date_fin'];
-        } else {
-            $reservationCall = null;
-        };
+
 
         switch ($route) {
             case 'accueil':
 
                 if ((!isset($_POST['prix_journalier']) || !$_POST['prix_journalier']) && (!isset($_POST['id_agence']) || !$_POST['id_agence'])) $this->accueil();
 
-                elseif ((!isset($_POST['prix_journalier']) || !$_POST['prix_journalier']) && $reservationCall) 
-                {$this->reservation($_POST);}
+                elseif ((!isset($_POST['prix_journalier']) || !$_POST['prix_journalier']) && $this->reservationCall) $this->reservation($_POST);
 
                 elseif ((!isset($_POST['id_agence']) || !$_POST['id_agence']) && $_POST['prix_journalier']) $this->TriParPrix($_POST);
 
-                elseif ($reservationCall && $_POST['prix_journalier']) $this->reservation($_POST);
-                else {
-                    $this->accueil();
-                }
+                elseif ($this->reservationCall && $_POST['prix_journalier']) $this->reservation($_POST); //TODO envoyer vers autre chose que accueil...
+
+                else $this->accueil();
                 break;
 
             case 'vehicules':
@@ -50,15 +46,17 @@ class Controller
                 elseif ($_POST['id_agence'] !== 0 && !isset($_POST['titre'])) $this->selectPageVehicule($_POST);
 
                 elseif ($_POST['id_agence'] !== 0 && (isset($_POST['titre']) && $_POST['titre'])) $this->postVehicule($_POST);
-
                 break;
 
             case 'agences':
                 $this->pageAgences();
+
                 if ($_POST) $this->postAgence($_POST);
                 break;
+
             case 'membres':
                 $this->pageMembres();
+
                 if ($_POST) $this->postMembre($_POST);
                 break;
 
@@ -75,11 +73,10 @@ class Controller
                 $this->retourAccueil();
                 break;
 
-            case 'reservation': {
-                    $id_vehicule = $_GET['id_vehicule'];
-                    $membre = $_GET['id_membre'];
-                    $this->detailVehicule($membre, $id_vehicule);
-                }
+            case 'reservation':
+                $id_vehicule = $_GET['id_vehicule'];
+                $membre = $_GET['id_membre'];
+                $this->detailVehicule($membre, $id_vehicule);
                 break;
         }
     }
@@ -132,6 +129,7 @@ class Controller
     public function TriParPrix($values)
     {
         if ($_POST) {
+            var_dump($this->reservationCall);
             if (intval($values['prix_journalier']) == 1) {
                 $this->render('layout.php', 'accueil.php', [
                     'title' => 'Accueil',
@@ -148,7 +146,13 @@ class Controller
 
     public function reservation($values)
     {
+        (isset($_POST['id_agence']) && $_POST['id_agence'] && isset($_POST['date_debut']) && $_POST['date_debut'] && isset($_POST['date_fin']) && $_POST['date_fin'])
+            ? $this->reservationCall = $_POST['id_agence'] && $_POST['date_debut'] && $_POST['date_fin']
+            : $this->reservationCall = null;
+        var_dump($this->reservationCall);
+
         if ($_POST) {
+            var_dump($values);
             if (!isset($values['prix_journalier']) || (intval($values['prix_journalier']) == 1)) {
                 $this->render('layout.php', 'accueil.php', [
                     'title' => 'Accueil',
@@ -178,17 +182,15 @@ class Controller
     public function selectPageVehicule($values)
     {
         if ($_POST) {
-            if (intval($values['id_agence']) === 0) {
-                $this->render('layout.php', 'vehicule.php', [
+            (intval($values['id_agence']) === 0)
+                ? $this->render('layout.php', 'vehicule.php', [
                     'title' => 'Véhicules',
                     'allVehicules' => $this->dbEntityRepository->selectAllVehicules()
-                ]);
-            } else {
-                $this->render('layout.php', 'vehicule.php', [
+                ])
+                : $this->render('layout.php', 'vehicule.php', [
                     'title' => 'Véhicules',
                     'allVehicules' => $this->dbEntityRepository->selectVehicule($values)
                 ]);
-            }
         }
     }
 
@@ -251,17 +253,15 @@ class Controller
     public function selectPageCommande($values)
     {
         if ($_POST) {
-            if (intval($values['id_agence']) === 0) {
-                $this->render('layout.php', 'commande.php', [
+            (intval($values['id_agence']) === 0)
+                ? $this->render('layout.php', 'commande.php', [
                     'title' => 'Commandes',
                     'allCommandes' => $this->dbEntityRepository->selectAllCommandes()
-                ]);
-            } else {
-                $this->render('layout.php', 'commande.php', [
+                ])
+                : $this->render('layout.php', 'commande.php', [
                     'title' => 'Commandes',
                     'allCommandes' => $this->dbEntityRepository->selectCommande($values)
                 ]);
-            }
         }
     }
 

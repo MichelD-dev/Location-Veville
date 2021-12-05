@@ -67,7 +67,9 @@ class EntityRepository
     public function sign_up($values)
     {
         $req = $this->getDb()->query(
-            "SELECT * FROM membre WHERE pseudo = '$values[pseudo]'"
+            "SELECT *
+            FROM membre
+            WHERE pseudo = '$values[pseudo]'"
         );
 
         if ($req->rowCount() >= 1) { //alors pseudo déjà pris
